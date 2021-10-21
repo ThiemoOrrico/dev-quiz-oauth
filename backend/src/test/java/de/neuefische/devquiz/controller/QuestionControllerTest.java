@@ -2,14 +2,16 @@ package de.neuefische.devquiz.controller;
 
 import de.neuefische.devquiz.model.Question;
 import de.neuefische.devquiz.repo.QuestionRepo;
+import de.neuefische.devquiz.security.model.AppUser;
+import de.neuefische.devquiz.security.repo.AppUserRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -27,6 +29,12 @@ class QuestionControllerTest {
     @Autowired
     private QuestionRepo questionRepo;
 
+    @Autowired
+    private AppUserRepo appUserRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void clearDb() {
         questionRepo.deleteAll();
@@ -41,7 +49,7 @@ class QuestionControllerTest {
         questionRepo.save(new Question("2", "Question with ID '2'", List.of()));
         questionRepo.save(new Question("3", "Question with ID '3'", List.of()));
         // WHEN
-        ResponseEntity<Question[]> responseEntity = testRestTemplate.getForEntity("/api/question", Question[].class);
+        ResponseEntity<Question[]> responseEntity = testRestTemplate.exchange("/api/question", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), Question[].class);
         // THEN
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), arrayContainingInAnyOrder(
@@ -60,7 +68,7 @@ class QuestionControllerTest {
 
         questionRepo.save(question);
         // WHEN
-        ResponseEntity<Question> responseEntity = testRestTemplate.getForEntity("/api/question/" + question.getId(), Question.class);
+        ResponseEntity<Question> responseEntity = testRestTemplate.exchange("/api/question/" + question.getId(), HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), Question.class);
         // THEN
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), is(new Question("302", "Question with ID '302'", List.of())));
@@ -75,7 +83,7 @@ class QuestionControllerTest {
 
 
         // WHEN
-        ResponseEntity<Question> postResponseEntity = testRestTemplate.postForEntity("/api/question/", questionToAdd, Question.class);
+        ResponseEntity<Question> postResponseEntity = testRestTemplate.exchange("/api/question/", HttpMethod.POST, new HttpEntity<>(questionToAdd, getHeaderWithJWT()), Question.class);
         Question actual = postResponseEntity.getBody();
 
         // THEN
@@ -84,12 +92,25 @@ class QuestionControllerTest {
         assertThat(actual, is(new Question("22", "This is a question", List.of())));
 
         // THEN - check via GET
-        ResponseEntity<Question> getResponse = testRestTemplate.getForEntity("/api/question/" + questionToAdd.getId(), Question.class);
+        ResponseEntity<Question> getResponse = testRestTemplate.exchange("/api/question/" + questionToAdd.getId(),HttpMethod.GET,new HttpEntity<>(getHeaderWithJWT()), Question.class);
         Question persistedQuestion = getResponse.getBody();
 
         assertNotNull(persistedQuestion);
         assertThat(persistedQuestion.getId(), is(questionToAdd.getId()));
         assertThat(persistedQuestion.getQuestionText(), is(questionToAdd.getQuestionText()));
+
+    }
+
+    private HttpHeaders getHeaderWithJWT(){
+        appUserRepo.save(AppUser.builder()
+                        .username("test-username")
+                        .password(passwordEncoder.encode("some-password"))
+                .build());
+        AppUser loginData = new AppUser("test-username", "some-password");
+        ResponseEntity<String> response = testRestTemplate.postForEntity("/auth/login", loginData, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(response.getBody());
+        return headers;
 
     }
 }

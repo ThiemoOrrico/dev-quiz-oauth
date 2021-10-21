@@ -4,7 +4,6 @@ export function getQuestions() {
   return axios
     .get('/api/question')
     .then(response => response.data)
-
 }
 
 export function addQuestion(newQuestion) {
