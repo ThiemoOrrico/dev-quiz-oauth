@@ -4,14 +4,16 @@ import de.neuefische.devquiz.model.Answer;
 import de.neuefische.devquiz.model.AnswerValidation;
 import de.neuefische.devquiz.model.Question;
 import de.neuefische.devquiz.repo.QuestionRepo;
+import de.neuefische.devquiz.security.model.AppUser;
+import de.neuefische.devquiz.security.repo.AppUserRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,12 @@ class PlayControllerTest {
 
     @Autowired
     private QuestionRepo questionRepo;
+
+    @Autowired
+    private AppUserRepo appUserRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     public void clearDb() {
@@ -58,12 +66,14 @@ class PlayControllerTest {
         questionRepo.save(expected);
 
         //WHEN
-        ResponseEntity<Question> responseEntity = testRestTemplate.getForEntity("/api/question/quiz", Question.class);
+        ResponseEntity<Question> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.GET, new HttpEntity<>(getJWT()), Question.class);
 
         //THEN
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody(), is(expected));
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(expected));
     }
+
+
 
     @Test
     @DisplayName("Should return true for a correctly chosen answer")
@@ -87,11 +97,12 @@ class PlayControllerTest {
         AnswerValidation answerValidation = new AnswerValidation(question, chosenId);
 
         //WHEN
-        ResponseEntity<Boolean> responseEntity = testRestTemplate.postForEntity("/api/question/quiz", answerValidation, Boolean.class );
+        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getJWT()), Boolean.class );
+
 
         //THEN
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody(), is(Boolean.TRUE));
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(Boolean.TRUE));
 
 
     }
@@ -118,10 +129,21 @@ class PlayControllerTest {
         AnswerValidation answerValidation = new AnswerValidation(question, chosenId);
 
         //WHEN
-        ResponseEntity<Boolean> responseEntity = testRestTemplate.postForEntity("/api/question/quiz", answerValidation, Boolean.class );
-
+        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getJWT()), Boolean.class );
         //THEN
-        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
-        assertThat(responseEntity.getBody(), is(Boolean.FALSE));
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(Boolean.FALSE));
+    }
+
+    private HttpHeaders getJWT() {
+        appUserRepo.save(AppUser.builder()
+                .username("test-username")
+                .password(passwordEncoder.encode("some-password"))
+                .build());
+        AppUser loginData = new AppUser("test-username","some-password");
+        ResponseEntity<String> response = testRestTemplate.postForEntity("/auth/login", loginData, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(response.getBody());
+        return headers;
     }
 }
