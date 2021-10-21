@@ -6,6 +6,7 @@ export default function useQuestions() {
 
   const getAllQuestions = () => {
     getQuestions().then(result => setQuestions(result))
+        .catch(err => console.error(err))
   }
 
   useEffect(() => {
