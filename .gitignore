@@ -12,3 +12,4 @@ buildNumber.properties
 /.idea/
 /rem-java-21-4-dev-quiz.iml
 /backend/*.iml
+/backend/.env
