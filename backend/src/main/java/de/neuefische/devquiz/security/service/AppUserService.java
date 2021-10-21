@@ -29,17 +29,7 @@ public class AppUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-//        Optional<AppUser> optionalAppUser = appUserRepo.findById(userName);
-//
-//        if(optionalAppUser.isPresent()){
-//            return User
-//                    .withUsername(optionalAppUser.get().getUserName())
-//                    .password(optionalAppUser.get().getPassword())
-//                    .authorities("user")
-//                    .build();
-//        } else {
-//            throw new UsernameNotFoundException("No user found by username: " + userName);
-//        }
+
 
         return appUserRepo.findById(userName)
                 .map(appUser -> User
