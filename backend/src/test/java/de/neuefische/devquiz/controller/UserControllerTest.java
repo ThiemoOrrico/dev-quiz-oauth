@@ -41,10 +41,10 @@ class UserControllerTest {
     @Test
     void testGetLoggedInUserDataWithValidToken() {
         //GIVEN
-        HttpHeaders token = getJWT();
+        HttpHeaders token = getHeaderWithJWT();
 
         //WHEN
-        ResponseEntity<String> response = restTemplate.exchange("/user/me", HttpMethod.GET, new HttpEntity<>(getJWT()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange("/user/me", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), String.class);
 
         //THEN
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -63,10 +63,10 @@ class UserControllerTest {
                         .compact()
         );
 
-        HttpHeaders token = getJWT();
+        HttpHeaders token = getHeaderWithJWT();
 
         //WHEN
-        ResponseEntity<String> response = restTemplate.exchange("/user/me", HttpMethod.GET, new HttpEntity<>(getJWT()), String.class);
+        ResponseEntity<String> response = restTemplate.exchange("/user/me", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), String.class);
 
         //THEN
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -86,7 +86,7 @@ class UserControllerTest {
     }
 
 
-    private HttpHeaders getJWT() {
+    private HttpHeaders getHeaderWithJWT() {
         appUserRepo.save(AppUser.builder()
                 .username("some-username")
                 .password(passwordEncoder.encode("some-password"))

@@ -49,7 +49,7 @@ class QuestionControllerTest {
         questionRepo.save(new Question("2", "Question with ID '2'", List.of()));
         questionRepo.save(new Question("3", "Question with ID '3'", List.of()));
         // WHEN
-        ResponseEntity<Question[]> responseEntity = testRestTemplate.exchange("/api/question", HttpMethod.GET, new HttpEntity<>(getJWT()), Question[].class);
+        ResponseEntity<Question[]> responseEntity = testRestTemplate.exchange("/api/question", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), Question[].class);
         // THEN
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), arrayContainingInAnyOrder(
@@ -68,7 +68,7 @@ class QuestionControllerTest {
 
         questionRepo.save(question);
         // WHEN
-        ResponseEntity<Question> responseEntity = testRestTemplate.exchange("/api/question/" + question.getId(), HttpMethod.GET, new HttpEntity<>(getJWT()), Question.class);
+        ResponseEntity<Question> responseEntity = testRestTemplate.exchange("/api/question/" + question.getId(), HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), Question.class);
         // THEN
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getBody(), is(new Question("302", "Question with ID '302'", List.of())));
@@ -83,7 +83,7 @@ class QuestionControllerTest {
 
 
         // WHEN
-        ResponseEntity<Question> postResponseEntity = testRestTemplate.exchange("/api/question/", HttpMethod.POST, new HttpEntity<>(questionToAdd, getJWT()), Question.class);
+        ResponseEntity<Question> postResponseEntity = testRestTemplate.exchange("/api/question/", HttpMethod.POST, new HttpEntity<>(questionToAdd, getHeaderWithJWT()), Question.class);
         Question actual = postResponseEntity.getBody();
 
         // THEN
@@ -92,7 +92,7 @@ class QuestionControllerTest {
         assertThat(actual, is(new Question("22", "This is a question", List.of())));
 
         // THEN - check via GET
-        ResponseEntity<Question> getResponse = testRestTemplate.exchange("/api/question/" + questionToAdd.getId(),HttpMethod.GET,new HttpEntity<>(getJWT()), Question.class);
+        ResponseEntity<Question> getResponse = testRestTemplate.exchange("/api/question/" + questionToAdd.getId(),HttpMethod.GET,new HttpEntity<>(getHeaderWithJWT()), Question.class);
         Question persistedQuestion = getResponse.getBody();
 
         assertNotNull(persistedQuestion);
@@ -101,7 +101,7 @@ class QuestionControllerTest {
 
     }
 
-    private HttpHeaders getJWT(){
+    private HttpHeaders getHeaderWithJWT(){
         appUserRepo.save(AppUser.builder()
                         .username("test-username")
                         .password(passwordEncoder.encode("some-password"))

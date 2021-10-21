@@ -66,7 +66,7 @@ class PlayControllerTest {
         questionRepo.save(expected);
 
         //WHEN
-        ResponseEntity<Question> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.GET, new HttpEntity<>(getJWT()), Question.class);
+        ResponseEntity<Question> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), Question.class);
 
         //THEN
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -97,7 +97,7 @@ class PlayControllerTest {
         AnswerValidation answerValidation = new AnswerValidation(question, chosenId);
 
         //WHEN
-        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getJWT()), Boolean.class );
+        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getHeaderWithJWT()), Boolean.class );
 
 
         //THEN
@@ -129,13 +129,13 @@ class PlayControllerTest {
         AnswerValidation answerValidation = new AnswerValidation(question, chosenId);
 
         //WHEN
-        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getJWT()), Boolean.class );
+        ResponseEntity<Boolean> response = testRestTemplate.exchange("/api/question/quiz", HttpMethod.POST,new HttpEntity<>(answerValidation, getHeaderWithJWT()), Boolean.class );
         //THEN
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         assertThat(response.getBody(), is(Boolean.FALSE));
     }
 
-    private HttpHeaders getJWT() {
+    private HttpHeaders getHeaderWithJWT() {
         appUserRepo.save(AppUser.builder()
                 .username("test-username")
                 .password(passwordEncoder.encode("some-password"))
