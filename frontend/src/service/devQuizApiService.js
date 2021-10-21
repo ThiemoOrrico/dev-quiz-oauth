@@ -1,33 +1,54 @@
 import axios from 'axios'
 
-export function getQuestions() {
-  return axios
-    .get('/api/question')
-    .then(response => response.data)
+const getHeader = (token) => {
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+    }
 }
 
-export function addQuestion(newQuestion) {
-  return axios
-    .post('/api/question', newQuestion)
-    .then(response => response.data)
-    .catch(console.error)
+export function getQuestions(token) {
+    return axios
+        .get('/api/question', getHeader(token))
+        .then(response => response.data)
 }
 
-export function getQuestion(){
-  return axios
-      .get('/api/question/quiz')
-      .then(response => response.data)
-      .catch(console.error)
+export function addQuestion(newQuestion, token) {
+    return axios
+        .post('/api/question', newQuestion, getHeader(token))
+        .then(response => response.data)
+        .catch(console.error)
 }
-export function checkAnswer(question, chosenId){
 
-  const answerValidation = {
-    question : question,
-    chosenId : chosenId
-  }
+export function getQuestion(token) {
+    return axios
+        .get('/api/question/quiz', getHeader(token))
+        .then(response => response.data)
+        .catch(console.error)
+}
 
-  return axios
-      .post('/api/question/quiz', answerValidation )
-      .then(response => response.data)
-      .catch(console.error)
+export function checkAnswer(question, chosenId, token) {
+
+    const answerValidation = {
+        question: question,
+        chosenId: chosenId
+    }
+
+    return axios
+        .post('/api/question/quiz', answerValidation, getHeader(token))
+        .then(response => response.data)
+        .catch(console.error)
+}
+
+export function authenticate(username, password) {
+    const user = {
+        username: username,
+        password: password
+    }
+
+    return axios
+        .post('/auth/login', user)
+        .then(response => response.data)
+        .catch(console.error)
 }

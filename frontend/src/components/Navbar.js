@@ -5,6 +5,7 @@ function Navbar() {
     return (
         <NavBarContainer>
             <NavItem to="/">Home</NavItem>
+            <NavItem to="/login">Login</NavItem>
             <NavItem to="/add-question">Add Question</NavItem>
             <NavItem to="/play">Play</NavItem>
         </NavBarContainer>
