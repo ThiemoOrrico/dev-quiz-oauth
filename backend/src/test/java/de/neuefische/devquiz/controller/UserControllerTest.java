@@ -50,27 +50,7 @@ class UserControllerTest {
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
     }
 
-    @Test
-    void testGetLoggedInUserDataWithExpiredToken() {
-        //GIVEN
 
-        when(jwtUtilService.createToken(new HashMap<>(), "some-username")).thenReturn(
-                Jwts.builder()
-                        .setSubject("some-username")
-                        .setIssuedAt(Date.from(Instant.now().minus(Duration.ofHours(5))))
-                        .setExpiration(Date.from(Instant.now().minus(Duration.ofHours(4))))
-                        .signWith(SignatureAlgorithm.HS256, "neuefische.devquiz.jwt.secret=super-fancy-secret-from-jan-oke")
-                        .compact()
-        );
-
-        HttpHeaders token = getHeaderWithJWT();
-
-        //WHEN
-        ResponseEntity<String> response = restTemplate.exchange("/user/me", HttpMethod.GET, new HttpEntity<>(getHeaderWithJWT()), String.class);
-
-        //THEN
-        assertThat(response.getStatusCode(), is(HttpStatus.OK));
-    }
 
     @Test
     void testGetLoggedInUserDataWithInvalidToken() {
