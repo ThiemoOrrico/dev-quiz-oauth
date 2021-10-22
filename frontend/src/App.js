@@ -1,36 +1,33 @@
 import Header from './components/Header'
 import './App.css'
-import {Route, Switch, useHistory} from 'react-router-dom'
+import {Route, Switch} from 'react-router-dom'
 import Homepage from './pages/Homepage'
 import AddQuestion from './pages/Add-Question'
 import useQuestions from './hooks/useQuestions'
 import Play from "./pages/Play";
-import {useEffect, useState} from "react";
-import {getQuestion, authenticate} from "./service/devQuizApiService";
+import {useContext, useEffect, useState} from "react";
+import {getQuestion} from "./service/devQuizApiService";
 import Loginpage from "./pages/Loginpage";
+import AuthProvider, {AuthContext} from "./context/AuthProvider";
 
 function App() {
 
     const [playQuestion, setPlayQuestion] = useState()
-    const [token, setToken] = useState()
-    const {questions, saveQuestion} = useQuestions(token)
-    const history= useHistory();
+    const {questions, saveQuestion} = useQuestions()
+    const {token} = useContext(AuthContext)
 
-    const getNextQuestion = (token) => {
+    const getNextQuestion = () => {
         getQuestion(token).then(result => {
             setPlayQuestion(result)
         })
     }
 
-    const doAuth = (username, password) => {
-        authenticate(username, password).then(result => setToken(result)).then(() => history.push("/"))
-    }
-
     useEffect(() => {
-        getNextQuestion(token);
-    }, [token]);
+        getNextQuestion();
+    }, []);
 
     return (
+
         <div className="App">
             <Header/>
             <Switch>
@@ -41,13 +38,14 @@ function App() {
                     <AddQuestion saveQuestion={saveQuestion}/>
                 </Route>
                 <Route path="/login">
-                    <Loginpage doAuth={doAuth}/>
+                    <Loginpage />
                 </Route>
                 <Route path="/play">
-                    {playQuestion && <Play question={playQuestion} playNext={getNextQuestion} token={token}/>}
+                    {playQuestion && <Play question={playQuestion} playNext={getNextQuestion}/>}
                 </Route>
             </Switch>
         </div>
+
     )
 }
 

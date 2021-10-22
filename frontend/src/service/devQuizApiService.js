@@ -41,14 +41,3 @@ export function checkAnswer(question, chosenId, token) {
         .catch(console.error)
 }
 
-export function authenticate(username, password) {
-    const user = {
-        username: username,
-        password: password
-    }
-
-    return axios
-        .post('/auth/login', user)
-        .then(response => response.data)
-        .catch(console.error)
-}

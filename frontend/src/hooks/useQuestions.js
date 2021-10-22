@@ -1,14 +1,18 @@
 import { addQuestion, getQuestions } from '../service/devQuizApiService'
-import { useEffect, useState } from 'react'
+import {useContext, useEffect, useState} from 'react'
+import {AuthContext} from "../context/AuthProvider";
 
-export default function useQuestions(token) {
+
+export default function useQuestions() {
   const [questions, setQuestions] = useState([])
+  const {token} = useContext(AuthContext)
 
   const getAllQuestions = () => {
     getQuestions(token).then(result => setQuestions(result))
         .catch(err => console.error(err))
   }
 
+  //eslint-disable-next-line
   useEffect(() => {
     getAllQuestions(token)
   }, [token])

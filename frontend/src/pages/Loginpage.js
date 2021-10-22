@@ -1,13 +1,15 @@
-import {useState} from "react";
+import {useContext, useState} from "react";
+import {AuthContext} from "../context/AuthProvider";
 
-export default function Loginpage({doAuth}) {
+export default function Loginpage() {
 
+    const {authenticate} = useContext(AuthContext)
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const handleAuth = (event)=> {
         event.preventDefault()
-        doAuth(username, password)
+        authenticate(username, password)
         setUsername('')
         setPassword('')
    }
