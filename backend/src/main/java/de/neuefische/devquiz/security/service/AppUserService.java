@@ -29,8 +29,6 @@ public class AppUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-
-
         return appUserRepo.findById(userName)
                 .map(appUser -> User
                         .withUsername(appUser.getUsername())
@@ -38,15 +36,12 @@ public class AppUserService implements UserDetailsService {
                         .authorities("user")
                         .build())
                 .orElseThrow(()-> new UsernameNotFoundException("Username does not exist: "+ userName));
-
     }
 
     public String getUserByUserName(String username) {
         Optional<AppUser> optionalAppUserData = appUserRepo.findById(username);
         if (optionalAppUserData.isPresent()){
-
             return "Hallo " + optionalAppUserData.get().getUsername();
-
         } else {
             throw new UsernameNotFoundException("No User found by username: " + username);
         }
