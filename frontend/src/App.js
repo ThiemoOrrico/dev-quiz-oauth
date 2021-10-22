@@ -9,6 +9,7 @@ import {useContext, useEffect, useState} from "react";
 import {getQuestion} from "./service/devQuizApiService";
 import Loginpage from "./pages/Loginpage";
 import AuthProvider, {AuthContext} from "./context/AuthProvider";
+import PrivateRoute from "./routing/PrivateRoute";
 
 function App() {
 
@@ -31,18 +32,18 @@ function App() {
         <div className="App">
             <Header/>
             <Switch>
-                <Route exact path="/">
+                <PrivateRoute exact path="/">
                     <Homepage questions={questions}/>
-                </Route>
-                <Route exact path="/add-question">
+                </PrivateRoute>
+                <PrivateRoute exact path="/add-question">
                     <AddQuestion saveQuestion={saveQuestion}/>
-                </Route>
+                </PrivateRoute>
                 <Route path="/login">
                     <Loginpage />
                 </Route>
-                <Route path="/play">
+                <PrivateRoute path="/play">
                     {playQuestion && <Play question={playQuestion} playNext={getNextQuestion}/>}
-                </Route>
+                </PrivateRoute>
             </Switch>
         </div>
 
