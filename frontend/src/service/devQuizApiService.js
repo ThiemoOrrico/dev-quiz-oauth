@@ -41,3 +41,21 @@ export function checkAnswer(question, chosenId, token) {
         .catch(console.error)
 }
 
+function postCodeToGetAccessTokenFromGithub (code){
+    const urlGithub = "https://github.com/login/oauth/access_token?" +
+        "client_id=f686cbea3ea2b20973bd&" +
+        "client_secret=88f027c081f1d0a49f350df35148584fd807a793&" +
+        "code=" + code;
+
+    return axios
+        .post(urlGithub)
+        .then(response => response.data)
+        .catch(console.error)
+
+}
+
+
+export function postAccessTokenToGithub(code){
+   return postCodeToGetAccessTokenFromGithub(code)
+
+}
